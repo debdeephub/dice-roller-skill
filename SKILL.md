@@ -7,11 +7,11 @@ description: Roll one or more six-sided dice and show the result in an animated 
 
 ## Examples
 
-- "抛个骰子"
-- "掷一下骰子"
+- "roll three dice"
+- "throw a die"
 - "roll a die"
 - "roll 2 dice"
-- "帮我抛三个骰子"
+- "toss two dice"
 
 ## Instructions
 

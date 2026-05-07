@@ -15,8 +15,9 @@ dice-roller
 Then ask the model:
 
 ```text
-抛个骰子
-掷两个骰子
+roll a die
+roll one die
+roll a pair of dice
 roll 3 dice
 ```
 
