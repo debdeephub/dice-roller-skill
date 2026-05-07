@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dice Roller Skill Runner</title>
+</head>
+<body>
+  <script>
+    window.ai_edge_gallery_get_result = async (data) => {
+      try {
+        const input = data ? JSON.parse(data) : {};
+        const requestedDice = Number.parseInt(input.dice, 10);
+        const diceCount = Number.isFinite(requestedDice)
+          ? Math.min(Math.max(requestedDice, 1), 6)
+          : 1;
+
+        const rolls = Array.from({ length: diceCount }, () => {
+          const random = new Uint32Array(1);
+          window.crypto.getRandomValues(random);
+          return (random[0] % 6) + 1;
+        });
+
+        const total = rolls.reduce((sum, value) => sum + value, 0);
+        const params = new URLSearchParams({
+          rolls: rolls.join(","),
+          total: String(total),
+          nonce: String(Date.now())
+        });
+
+        return JSON.stringify({
+          result: diceCount === 1
+            ? `Rolled ${rolls[0]}.`
+            : `Rolled ${rolls.join(", ")}. Total: ${total}.`,
+          webview: {
+            url: `dice-view.html?${params.toString()}`,
+            aspectRatio: diceCount <= 2 ? 1.15 : 1.35
+          }
+        });
+      } catch (error) {
+        return JSON.stringify({
+          error: `Failed to roll dice: ${error.message}`
+        });
+      }
+    };
+  </script>
+</body>
+</html>

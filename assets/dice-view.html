@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dice Result</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #17202c;
+      --muted: #617080;
+      --felt-a: #11816f;
+      --felt-b: #075449;
+      --face-top: #fff8ec;
+      --face-left: #e9d8bf;
+      --face-right: #d6b990;
+      --edge: #ad8e66;
+      --pip: #181f29;
+      --red: #c8322a;
+      --shadow: rgba(7, 31, 28, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.26), transparent 34%),
+        linear-gradient(145deg, var(--felt-a), var(--felt-b));
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(100%, 760px);
+      min-height: 100vh;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stage {
+      width: 100%;
+      min-height: 330px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .dice-grid {
+      width: min(100%, 660px);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+      gap: 18px 12px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .die-wrap {
+      width: 142px;
+      height: 168px;
+      display: grid;
+      place-items: center;
+      filter: drop-shadow(0 24px 16px var(--shadow));
+      animation: land 1120ms cubic-bezier(.18, .86, .2, 1) both;
+      transform-origin: 50% 72%;
+    }
+
+    .die-svg {
+      width: 142px;
+      height: 168px;
+      overflow: visible;
+    }
+
+    .die-body {
+      animation: tumble 1120ms cubic-bezier(.18, .86, .2, 1) both;
+      transform-origin: 60px 78px;
+    }
+
+    .top-face {
+      fill: url(#topGradient);
+      stroke: var(--edge);
+      stroke-width: 1.4;
+      stroke-linejoin: round;
+    }
+
+    .left-face {
+      fill: url(#leftGradient);
+      stroke: var(--edge);
+      stroke-width: 1.4;
+      stroke-linejoin: round;
+    }
+
+    .right-face {
+      fill: url(#rightGradient);
+      stroke: var(--edge);
+      stroke-width: 1.4;
+      stroke-linejoin: round;
+    }
+
+    .ridge {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.32);
+      stroke-width: 1.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .pip {
+      fill: var(--pip);
+      filter: url(#pipInset);
+    }
+
+    .pip.red {
+      fill: var(--red);
+    }
+
+    .side-pip {
+      fill: rgba(24, 31, 41, 0.34);
+    }
+
+    .summary {
+      justify-self: center;
+      width: min(100%, 430px);
+      margin-bottom: 8px;
+      padding: 12px 16px;
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      text-align: center;
+      border-radius: 8px;
+      background: rgba(255, 248, 236, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.46);
+      box-shadow: 0 12px 28px rgba(6, 42, 37, 0.22);
+      backdrop-filter: blur(10px);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .result {
+      color: var(--ink);
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 850;
+    }
+
+    .detail {
+      color: var(--muted);
+      min-height: 20px;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    @keyframes tumble {
+      0% {
+        transform: translate(-34px, -52px) rotate(-56deg) scale(.84);
+      }
+      42% {
+        transform: translate(20px, 12px) rotate(28deg) scale(1.05);
+      }
+      68% {
+        transform: translate(-6px, -10px) rotate(-12deg) scale(.98);
+      }
+      100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+      }
+    }
+
+    @keyframes land {
+      0% {
+        transform: translateY(-36px);
+      }
+      56% {
+        transform: translateY(8px);
+      }
+      78% {
+        transform: translateY(-5px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 430px) {
+      main {
+        padding: 14px;
+      }
+
+      .stage {
+        min-height: 300px;
+      }
+
+      .dice-grid {
+        grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+      }
+
+      .die-wrap,
+      .die-svg {
+        width: 118px;
+        height: 140px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #f8f2e8;
+        --muted: #bac5cd;
+        --face-top: #fff6e8;
+        --face-left: #dfccb2;
+        --face-right: #c5a575;
+        --edge: #9f805a;
+        --shadow: rgba(0, 0, 0, 0.52);
+      }
+
+      .summary {
+        background: rgba(24, 31, 36, 0.78);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="stage" aria-label="Dice roll animation">
+      <div class="dice-grid" id="diceGrid"></div>
+    </section>
+    <section class="summary" aria-live="polite">
+      <div class="label">顶面结果</div>
+      <div class="result" id="resultText">1</div>
+      <div class="detail" id="detailText"></div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const rolls = (params.get("rolls") || "1")
+      .split(",")
+      .map((value) => Number.parseInt(value, 10))
+      .filter((value) => Number.isInteger(value) && value >= 1 && value <= 6)
+      .slice(0, 6);
+
+    const safeRolls = rolls.length ? rolls : [1];
+    const total = safeRolls.reduce((sum, value) => sum + value, 0);
+    const grid = document.getElementById("diceGrid");
+
+    const pipPatterns = {
+      1: [[0, 0, true]],
+      2: [[-24, -24], [24, 24]],
+      3: [[-26, -26], [0, 0], [26, 26]],
+      4: [[-25, -25], [25, -25], [-25, 25], [25, 25]],
+      5: [[-26, -26], [26, -26], [0, 0, true], [-26, 26], [26, 26]],
+      6: [[-27, -28], [27, -28], [-27, 0], [27, 0], [-27, 28], [27, 28]]
+    };
+
+    function isoPoint(u, v) {
+      return {
+        x: 60 + (u - v) * 0.72,
+        y: 42 + (u + v) * 0.42
+      };
+    }
+
+    function svgEl(name, attrs = {}) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      return el;
+    }
+
+    function addPips(group, value) {
+      pipPatterns[value].forEach(([u, v, red]) => {
+        const point = isoPoint(u, v);
+        group.appendChild(svgEl("ellipse", {
+          class: `pip${red ? " red" : ""}`,
+          cx: point.x.toFixed(2),
+          cy: point.y.toFixed(2),
+          rx: 6.8,
+          ry: 4.15,
+          transform: `rotate(30 ${point.x.toFixed(2)} ${point.y.toFixed(2)})`
+        }));
+      });
+    }
+
+    function addSidePips(group) {
+      [
+        [30, 90], [47, 102], [90, 90], [73, 102]
+      ].forEach(([cx, cy]) => {
+        group.appendChild(svgEl("ellipse", {
+          class: "side-pip",
+          cx,
+          cy,
+          rx: 4.8,
+          ry: 3.2,
+          transform: `rotate(28 ${cx} ${cy})`
+        }));
+      });
+    }
+
+    function createDie(value, index) {
+      const wrap = document.createElement("div");
+      wrap.className = "die-wrap";
+      wrap.style.animationDelay = `${index * 110}ms`;
+
+      const svg = svgEl("svg", {
+        class: "die-svg",
+        viewBox: "-12 -4 144 158",
+        role: "img",
+        "aria-label": `Top face ${value}`
+      });
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="topGradient" x1="12" y1="8" x2="108" y2="78" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="0.54" stop-color="var(--face-top)"/>
+            <stop offset="1" stop-color="#ead4b4"/>
+          </linearGradient>
+          <linearGradient id="leftGradient" x1="10" y1="50" x2="58" y2="138" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#f0dfc5"/>
+            <stop offset="1" stop-color="var(--face-left)"/>
+          </linearGradient>
+          <linearGradient id="rightGradient" x1="112" y1="48" x2="62" y2="138" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#dfc194"/>
+            <stop offset="1" stop-color="var(--face-right)"/>
+          </linearGradient>
+          <filter id="pipInset" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0.8" dy="1.1" stdDeviation="0.8" flood-color="#000000" flood-opacity="0.28"/>
+          </filter>
+        </defs>
+      `;
+
+      const body = svgEl("g", { class: "die-body" });
+
+      body.appendChild(svgEl("path", {
+        class: "left-face",
+        d: "M2 42 L60 76 L60 138 L2 104 Z"
+      }));
+      body.appendChild(svgEl("path", {
+        class: "right-face",
+        d: "M118 42 L60 76 L60 138 L118 104 Z"
+      }));
+      body.appendChild(svgEl("path", {
+        class: "top-face",
+        d: "M60 8 L118 42 L60 76 L2 42 Z"
+      }));
+      body.appendChild(svgEl("path", {
+        class: "ridge",
+        d: "M60 8 L118 42 L60 76 L2 42 Z M2 42 L60 76 L118 42 M60 76 L60 138"
+      }));
+
+      addSidePips(body);
+      addPips(body, value);
+      svg.appendChild(body);
+      wrap.appendChild(svg);
+      return wrap;
+    }
+
+    safeRolls.forEach((roll, index) => {
+      grid.appendChild(createDie(roll, index));
+    });
+
+    document.getElementById("resultText").textContent = safeRolls.length === 1
+      ? String(safeRolls[0])
+      : String(total);
+    document.getElementById("detailText").textContent = safeRolls.length === 1
+      ? "一枚六面骰"
+      : `顶面点数：${safeRolls.join(" + ")} = ${total}`;
+  </script>
+</body>
+</html>
